@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  # Frontend - React con Vite
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    networks:
+      - mynetwork
+    depends_on:
+      - backend
+
+  # Backend - API FastAPI o cualquier otro backend que utilices
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/app/templates:/app/templates
+      - ./descargas:/descargas
+    networks:
+      - mynetwork
+    depends_on:
+      - unoconv_service
+
+  # Servicio de conversión a PDF
+  unoconv_service:
+    build: ./unoconv_service
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./descargas:/descargas
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
