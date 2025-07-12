@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+requests
+beautifulsoup4
+pydantic
+playwright
+bs4
+docx2pdf
+python-multipart
+aiofiles
+pillow
+python-docx
+pypandoc
+num2words
