@@ -3,141 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <title>Cotización Andy Hierro</title>
-  <link rel="stylesheet" href="%PUBLIC_URL%/index.css"> <!-- Usar %PUBLIC_URL% -->
+  <link rel="stylesheet" href="../estilos.css"> <!-- Usar %PUBLIC_URL% -->
   <script src="%PUBLIC_URL%/Nav.jsx" defer></script> <!-- Cambiado a Nav.jsx -->
-  <script src="%PUBLIC_URL%/App.jsx" defer></script> <!-- Cambiado a App.jsx -->
+  <script src="../app.js" defer></script>
 </head>
 <body class="andy-form">
 
   <h1 class="titulo-formulario">Cotización Andy Hierro</h1>
 
   <form action="http://localhost:8001/generar-pdf" method="POST" enctype="multipart/form-data" id="formulario">
-    <input type="hidden" name="tipo_formulario" value="andy">
-    <input type="hidden" name="tipo_necesidad" value="N/A">
-    <input type="hidden" name="codigo_necesidad" value="N/A">
+  <input type="hidden" name="tipo_formulario" value="andy">
+  <input type="hidden" name="tipo_necesidad" value="N/A">
+  <input type="hidden" name="codigo_necesidad" value="N/A">
 
-    <!-- Datos de Cotización -->
-    <section class="card">
-      <h2>Datos de la Cotización</h2>
-      <div class="input-container">
-        <label for="numero_proforma">Número de Cotización:</label>
-        <input type="text" name="numero_proforma" id="numero_proforma" required><br>
-      </div>
-    </section>
+  <!-- Datos de Cotización -->
+  <section class="card">
+    <h2>Datos de la Cotización</h2>
+    <div class="input-container">
+      <label for="numero_proforma">Número de Cotización:</label>
+      <input type="text" name="numero_proforma" id="numero_proforma" required><br>
+    </div>
+  </section>
 
-    <!-- URL del proceso -->
-    <section class="card">
-      <h2>Ingresar URL del Proceso</h2>
-      <div class="input-container">
-        <label for="url_proceso">URL del Proceso:</label>
-        <input type="url" name="url_proceso" id="url_proceso" required>
-      </div>
-      <button type="button" class="btn-turquesa" onclick="importarDesdeURL()">Importar datos</button>
-    </section>
+  <!-- URL del proceso -->
+  <section class="card">
+    <h2>Ingresar URL del Proceso</h2>
+    <div class="input-container">
+      <label for="url_proceso">URL del Proceso:</label>
+      <input type="url" name="url_proceso" id="url_proceso" required>
+    </div>
+    <button type="button" class="btn-turquesa" onclick="importarDesdeURL()">Importar datos</button>
+  </section>
 
-    <!-- Datos Generales -->
-    <section class="card">
-      <h2>Datos Generales</h2>
-      <div class="input-container">
-        <label for="entidad">Cliente:</label>
-        <input type="text" name="entidad" id="entidad" required>
+  <!-- Datos Generales -->
+  <section class="card">
+    <h2>Datos Generales</h2>
+    <div class="input-container">
+      <label for="entidad">Cliente:</label>
+      <input type="text" name="entidad" id="entidad" required>
+    </div>
+    <div class="input-container">
+      <label for="ruc">RUC:</label>
+      <input type="text" name="ruc" id="ruc" required>
+    </div>
+    <div class="input-container">
+      <label for="direccion">Dirección:</label>
+      <input type="text" name="direccion" id="direccion" required>
+    </div>
+    <div class="input-container">
+        <label for="tipo_necesidad">Tipo de necesidad:</label>
+        <input type="text" name="tipo_necesidad" id="tipo_necesidad" required><br>
       </div>
-      <div class="input-container">
-        <label for="ruc">RUC:</label>
-        <input type="text" name="ruc" id="ruc" required>
-      </div>
-      <div class="input-container">
-        <label for="direccion">Dirección:</label>
-        <input type="text" name="direccion" id="direccion" required>
-      </div>
-      <div class="input-container">
-          <label for="tipo_necesidad">Tipo de necesidad:</label>
-          <input type="text" name="tipo_necesidad" id="tipo_necesidad" required><br>
-        </div>
-    </section>
+  </section>
 
-    <!-- Tabla de Productos -->
-    <section class="card">
-      <h2>Detalle de Productos</h2>
-      <div class="tabla-responsive">
-        <table id="tabla-productos">
-          <thead>
-            <tr>
-              <th>CANTIDAD</th>
-              <th>CPC</th>
-              <th>DESCRIPCIÓN</th>
-              <th>V. UNITARIO</th>
-              <th>V. TOTAL</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" name="cantidad[]" inputmode="decimal" required onchange="calcularTotal()"></td>
-              <td><input type="text" name="cpc[]" required></td>
-              <td><input type="text" name="descripcion[]" required></td>
-              <td><input type="number" name="precio_unitario[]" step="any" inputmode="decimal" required onchange="calcularTotal()"></td>
-              <td><input type="text" name="total[]" placeholder="$ 0,00" readonly></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Subtotales -->
-      <div class="subtotales">
-        <table>
+  <!-- Tabla de Productos -->
+  <section class="card">
+    <h2>Detalle de Productos</h2>
+    <div class="tabla-responsive">
+      <table id="tabla-productos">
+        <thead>
           <tr>
-            <td><strong>SUBTOTAL</strong></td>
-            <td>$<span id="subtotal">0,00</span></td>
+            <th>CANTIDAD</th>
+            <th>CPC</th>
+            <th>DESCRIPCIÓN</th>
+            <th>V. UNITARIO</th>
+            <th>V. TOTAL</th>
           </tr>
+        </thead>
+        <tbody>
           <tr>
-            <td><strong>IVA</strong> 
-              <input type="number" id="iva" name="iva" min="0" max="100" style="width: 60px;" onchange="calcularTotal()">%
-            </td>
-            <td>$ <span id="valor-iva">0,00</span></td>
+            <td><input type="text" name="cantidad[]" inputmode="decimal" required onchange="calcularTotal()"></td>
+            <td><input type="text" name="cpc[]" required></td>
+            <td><input type="text" name="descripcion[]" required></td>
+            <td><input type="number" name="precio_unitario[]" step="any" inputmode="decimal" required onchange="calcularTotal()"></td>
+            <td><input type="text" name="total[]" placeholder="$ 0,00" readonly></td>
           </tr>
-          <tr>
-            <td><strong>TOTAL</strong></td>
-            <td>$ <span id="total">0,00</span></td>
-          </tr>
-        </table>
-      </div>
-    </section>
+        </tbody>
+      </table>
+    </div>
 
-    <!-- Condiciones Generales -->
-    <section class="card">
-      <h2>Condiciones Generales</h2>
-      <div class="input-container">
-        <label for="validez_proforma">Validez de la Proforma:</label>
-        <input type="text" name="validez_proforma" id="validez_proforma" required>
-      </div>
-      <div class="input-container">
-        <label for="forma_pago">Forma de Pago:</label>
-        <input type="text" name="forma_pago" id="forma_pago" required>
-      </div>
-      <div class="input-container">
-        <label for="plazo_entrega">Plazo de Entrega:</label>
-        <input type="text" name="plazo_entrega" id="plazo_entrega" required>
-      </div>
-      <div class="input-container">
-        <label for="garantia_tecnica">Garantía Técnica:</label>
-        <input type="text" name="garantia_tecnica" id="garantia_tecnica" required>
-      </div>
-      <div class="input-container">
-        <label for="anexos">Anexo:</label>
-        <textarea name="anexos" id="anexos" rows="3" required></textarea>
-      </div>
-    </section>
+    <!-- Subtotales -->
+    <div class="subtotales">
+      <table>
+        <tr>
+          <td><strong>SUBTOTAL</strong></td>
+          <td>$<span id="subtotal">0,00</span></td>
+        </tr>
+        <tr>
+          <td><strong>IVA</strong> 
+            <input type="number" id="iva" name="iva" min="0" max="100" style="width: 60px;" onchange="calcularTotal()">%
+          </td>
+          <td>$ <span id="valor-iva">0,00</span></td>
+        </tr>
+        <tr>
+          <td><strong>TOTAL</strong></td>
+          <td>$ <span id="total">0,00</span></td>
+        </tr>
+      </table>
+    </div>
+  </section>
 
-    <section class="card">
-      <h2>Otros Parámetros</h2>
-      <div class="input-container">
-        <label for="otros_parametros">Otros parámetros:</label>
-        <textarea name="otros_parametros" id="otros_parametros" rows="4" placeholder="Escribe aquí información adicional..."></textarea><br>
-      </div>
-    </section>
+  <!-- Condiciones Generales -->
+  <section class="card">
+    <h2>Condiciones Generales</h2>
+    <div class="input-container">
+      <label for="validez_proforma">Validez de la Proforma:</label>
+      <input type="text" name="validez_proforma" id="validez_proforma" required>
+    </div>
+    <div class="input-container">
+      <label for="forma_pago">Forma de Pago:</label>
+      <input type="text" name="forma_pago" id="forma_pago" required>
+    </div>
+    <div class="input-container">
+      <label for="plazo_entrega">Plazo de Entrega:</label>
+      <input type="text" name="plazo_entrega" id="plazo_entrega" required>
+    </div>
+    <div class="input-container">
+      <label for="garantia_tecnica">Garantía Técnica:</label>
+      <input type="text" name="garantia_tecnica" id="garantia_tecnica" required>
+    </div>
+    <div class="input-container">
+      <label for="anexos">Anexo:</label>
+      <textarea name="anexos" id="anexos" rows="3" required></textarea>
+    </div>
+  </section>
 
-    <button type="submit" class="btn-turquesa">Generar PDF</button>
-  </form>
+  <section class="card">
+    <h2>Otros Parámetros</h2>
+    <div class="input-container">
+      <label for="otros_parametros">Otros parámetros:</label>
+      <textarea name="otros_parametros" id="otros_parametros" rows="4" placeholder="Escribe aquí información adicional..."></textarea><br>
+    </div>
+  </section>
+
+  <button type="submit" class="btn-turquesa">Generar PDF</button>
+</form>
 
   <script>
     function formatNumber(number) {
