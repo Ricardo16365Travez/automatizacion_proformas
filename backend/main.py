@@ -6,7 +6,7 @@ import logging
 from typing import List
 import requests
 from bs4 import BeautifulSoup
-from pdf_generator import generar_proforma_docx, numero_a_letras  # Esto llama a las funciones del otro archivo
+from pdf_generator import generar_proforma_docx, numero_a_letras  
 from datetime import datetime
 import os
 
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Modelos de datos
+
 class URLRequest(BaseModel):
     url: str
 
@@ -47,7 +47,7 @@ class ProformaData(BaseModel):
     lugar_entrega: str
     vigencia_proforma: str
     anexos: str
-    tipo_formulario: str  # Este campo identificará el tipo de formulario (Andy o Ecualimpio)
+    tipo_formulario: str 
 
 # Rutas de la API
 @app.get("/")
