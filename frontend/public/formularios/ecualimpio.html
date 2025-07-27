@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Proforma Electrónica</title>
+  <link rel="stylesheet" href="../estilos.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="%PUBLIC_URL%/Nav.jsx" defer></script>
+  <script src="../app.js" defer></script>
+</head>
+
+<body>
+  <h1 class="titulo-pagina">Proforma Electrónica</h1>
+
+  <form action="http://localhost:8001/generar-pdf" method="POST" enctype="multipart/form-data" id="formulario">
+    <input type="hidden" name="tipo_formulario" value="ecualimpio">
+
+    <!-- NUEVA SECCIÓN: Número de Proforma -->
+    <section class="card">
+      <h2>Datos de la Proforma</h2>
+      <div class="input-container">
+        <label for="numero_proforma">Número de Proforma:</label>
+        <input type="text" name="numero_proforma" id="numero_proforma" required><br>
+      </div>
+    </section>
+
+    <!-- INGRESO DE URL -->
+    <section class="card">
+      <h2>1. Ingresar URL del Proceso</h2>
+      <div class="input-container">
+        <label for="url">Proceso (URL):</label>
+        <input type="url" name="url" id="url" required><br>
+      </div>
+      <button type="button" class="btn btn-turquesa" onclick="importarDesdeURL()">
+        <i class="fas fa-download"></i> Importar datos
+      </button>
+    </section>
+
+    <!-- DATOS DE LA ENTIDAD Y/O EMPRESA -->
+    <section class="card">
+      <h2>2. DATOS DE LA ENTIDAD Y/O EMPRESA</h2>
+      <div class="input-container">
+        <label for="entidad">Nombre de la entidad:</label>
+        <input type="text" name="entidad" id="entidad" required><br>
+      </div>
+      <div class="input-container">
+        <label for="ruc">RUC:</label>
+        <input type="text" name="ruc" id="ruc" required><br>
+      </div>
+      <div class="input-container">
+        <label for="direccion">Dirección:</label>
+        <input type="text" name="direccion" id="direccion" required><br>
+      </div>
+      <div class="input-container">
+        <label for="ciudad">Ciudad:</label>
+        <input type="text" name="ciudad" id="ciudad" required><br>
+      </div>
+      <div class="input-container">
+        <label for="tipo_necesidad">Tipo de necesidad:</label>
+        <input type="text" name="tipo_necesidad" id="tipo_necesidad" required><br>
+      </div>
+      <div class="input-container">
+        <label for="codigo_necesidad">Código de necesidad de contratación:</label>
+        <input type="text" name="codigo_necesidad" id="codigo_necesidad" required><br>
+      </div>
+      <div class="input-container">
+        <label for="objeto_compra">Objeto de compra:</label>
+        <input type="text" name="objeto_compra" id="objeto_compra" required><br>
+      </div>
+    </section>
+
+    <!-- CONDICIONES COMERCIALES -->
+    <section class="card">
+      <h2>3. CONDICIONES COMERCIALES</h2>
+      <div class="tabla-responsive">
+        <table id="tabla-productos">
+          <thead>
+            <tr>
+              <th>Nº</th>
+              <th>CPC</th>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>V. Unitario</th>
+              <th>V. Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><input type="text" name="cpc[]" required></td>
+              <td><input type="text" name="descripcion[]" required></td>
+              <td><input type="number" name="cantidad[]" required onchange="calcularTotal()"></td>
+              <td><input type="text" name="precio_unitario[]" step="any" inputmode="decimal" required onchange="calcularTotal()"></td>
+              <td><input type="text" name="total[]" placeholder="$ 0,00" readonly></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Subtotales -->
+      <div class="subtotales">
+        <table>
+          <tr>
+            <td><strong>SUBTOTAL</strong></td>
+            <td>$<span id="subtotal">0,00</span></td>
+          </tr>
+          <tr>
+            <td><strong>IVA</strong> <input type="number" id="iva" name="iva" style="width: 50px;" onchange="calcularTotal()">%</td>
+            <td>$ <span id="valor-iva">0,00</span></td>
+          </tr>
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td>$ <span id="total">0,00</span></td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- CONDICIONES GENERALES -->
+    <section class="card">
+      <h2>4. CONDICIONES GENERALES</h2>
+      <div class="input-container">
+        <label for="forma_pago">Forma de Pago:</label>
+        <input type="text" name="forma_pago" id="forma_pago" required><br>
+      </div>
+      <div class="input-container">
+        <label for="plazo_ejecucion">Plazo de Ejecución:</label>
+        <input type="text" name="plazo_ejecucion" id="plazo_ejecucion" required><br>
+      </div>
+      <div class="input-container">
+        <label for="garantia_tecnica">Garantía Técnica:</label>
+        <input type="text" name="garantia_tecnica" id="garantia_tecnica" required><br>
+      </div>
+      <div class="input-container">
+        <label for="lugar_entrega">Lugar de Entrega:</label>
+        <input type="text" name="lugar_entrega" id="lugar_entrega" required><br>
+      </div>
+      <div class="input-container">
+        <label for="vigencia_proforma">Vigencia de la Proforma:</label>
+        <input type="text" name="vigencia_proforma" id="vigencia_proforma" required><br>
+      </div>
+      <div class="input-container">
+        <label for="anexos">Anexos:</label>
+        <textarea name="anexos" id="anexos" required></textarea><br>
+      </div>
+    </section>
+
+    <!-- OTROS PARÁMETROS -->
+    <section class="card">
+      <h2>5. OTROS PARÁMETROS</h2>
+      <div class="input-container">
+        <label for="otros_parametros">Otros parámetros:</label>
+        <textarea name="otros_parametros" id="otros_parametros" rows="4" placeholder="Escribe aquí información adicional..."></textarea><br>
+      </div>
+    </section>
+
+    <!-- Botón Final -->
+    <button type="button" onclick="prepararEnvio()">Generar PDF</button>
+
+  </form>
+
+  <script>
+    function formatNumber(number) {
+      return number.toLocaleString('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function calcularTotal() {
+      const cantidadInputs = document.querySelectorAll('input[name="cantidad[]"]');
+      const precioInputs = document.querySelectorAll('input[name="precio_unitario[]"]');
+      const totalInputs = document.querySelectorAll('input[name="total[]"]');
+      let subtotal = 0;
+
+      cantidadInputs.forEach((input, index) => {
+        const cantidad = parseFloat(input.value) || 0;
+        const precio = parseFloat(precioInputs[index].value) || 0;
+        const total = cantidad * precio;
+
+        totalInputs[index].value = formatNumber(total);
+
+        subtotal += total;
+      });
+
+      const ivaInput = parseFloat(document.getElementById('iva').value) || 0;
+      const ivaValue = subtotal * (ivaInput / 100);
+      const totalGeneral = subtotal + ivaValue;
+
+      document.getElementById('subtotal').textContent = formatNumber(subtotal);
+      document.getElementById('valor-iva').textContent = formatNumber(ivaValue);
+      document.getElementById('total').textContent = formatNumber(totalGeneral);
+    }
+  </script>
+
+</body>
+
+</html>
