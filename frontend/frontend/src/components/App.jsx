@@ -11,13 +11,7 @@ function Inicio() {
         {/* Formulario Ecualimpio */}
         <div className="col-md-5">
           <div className="card border-start border-3 border-success empresa-card shadow-sm">
-            <img
-              src={`/imagenes/logo1.jpg`}
-              alt="Logo Ecualimpio"
-              className="empresa-logo"
-            />
-            <div className="empresa-nombre">Ecualimpio</div>
-            <div className="empresa-slogan">Ciudad más limpia - CIA LTDA</div>
+            <div className="empresa-nombre">Datos de la Proforma</div>
             <Link to="/formularios/ecualimpio" className="btn btn-turquesa w-100">
               Ingresar
             </Link>
@@ -27,13 +21,7 @@ function Inicio() {
         {/* Formulario Andy Hierro */}
         <div className="col-md-5">
           <div className="card border-start border-3 border-primary empresa-card shadow-sm">
-            <img
-              src={`/imagenes/logo2.jpg`}
-              alt="Logo Andy Hierro"
-              className="empresa-logo"
-            />
-            <div className="empresa-nombre">Andy Hierro</div>
-            <div className="empresa-slogan">Forjados y troquelados</div>
+            <div className="empresa-nombre">Cotización</div>
             <Link to="/formularios/andy" className="btn btn-turquesa w-100">
               Ingresar
             </Link>

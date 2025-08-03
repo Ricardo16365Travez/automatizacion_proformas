@@ -15,12 +15,12 @@ export default function Nav() {
           </li>
           <li>
             <Link to="/formularios/andy" className="navbar-item">
-              Formulario Andy Hierro
+              Cotización
             </Link>
           </li>
           <li>
             <Link to="/formularios/ecualimpio" className="navbar-item">
-              Formulario Ecualimpio
+              Datos de la Proforma
             </Link>
           </li>
         </ul>
