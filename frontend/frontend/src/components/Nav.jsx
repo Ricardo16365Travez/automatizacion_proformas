@@ -7,7 +7,7 @@ export default function Nav() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          Proforma Electrónica
+          Auto-Proforma
         </Link>
         <ul className="navbar-menu">
           <li>
