@@ -7,7 +7,7 @@ export default function Nav() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          Proforma Electrónica
+          AUTO PROFORMA
         </Link>
         <ul className="navbar-menu">
           <li>
@@ -15,12 +15,12 @@ export default function Nav() {
           </li>
           <li>
             <Link to="/formularios/andy" className="navbar-item">
-              Formulario Andy Hierro
+              Cotización
             </Link>
           </li>
           <li>
             <Link to="/formularios/ecualimpio" className="navbar-item">
-              Formulario Ecualimpio
+              Datos de la Proforma
             </Link>
           </li>
         </ul>
