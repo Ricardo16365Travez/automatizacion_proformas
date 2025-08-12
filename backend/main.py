@@ -1,3 +1,4 @@
+# main.py
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,7 +7,7 @@ import logging
 from typing import List
 import requests
 from bs4 import BeautifulSoup
-from pdf_generator import generar_proforma_docx, numero_a_letras  # Esto llama a las funciones del otro archivo
+from pdf_generator import generar_proforma_docx, numero_a_letras  # tus utilidades
 from datetime import datetime
 import os
 
@@ -21,7 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Modelos de datos
+# -------------------------
+# Modelos de datos (opcionales para tipado)
+# -------------------------
 class URLRequest(BaseModel):
     url: str
 
@@ -40,17 +43,18 @@ class ProformaData(BaseModel):
     codigo_necesidad: str
     objeto_compra: str
     productos: List[Producto]
-    valor_iva: float
-    iva: float
+    iva: float                    # (monto) - si lo usas en algún lado
     forma_pago: str
     plazo_ejecucion: str
     garantia_tecnica: str
     lugar_entrega: str
     vigencia_proforma: str
     anexos: str
-    tipo_formulario: str  # Este campo identificará el tipo de formulario (Andy o Ecualimpio)
+    tipo_formulario: str          # andy | ecualimpio
 
-# Rutas de la API
+# -------------------------
+# Rutas
+# -------------------------
 @app.get("/")
 async def root():
     return {"message": "API lista"}
@@ -86,27 +90,41 @@ async def importar(data: URLRequest):
 async def generar_pdf(request: Request):
     form = await request.form()
 
-    # Recoger el tipo de formulario
+    # Porcentaje de IVA escrito por el usuario (0–100)
+    iva_porcentaje = _to_float(form.get("iva"))
+
+    # Tipo de formulario para escoger plantilla
     tipo_formulario = form.get("tipo_formulario")
     logging.debug(f"Tipo de formulario recibido: {tipo_formulario}")
 
+    # -------------------------
+    # Productos y totales
+    # -------------------------
+    cpcs = form.getlist("cpc[]")
+    descripciones = form.getlist("descripcion[]")
+    cantidades = form.getlist("cantidad[]")
+    precios = form.getlist("precio_unitario[]")
+
     productos = []
-    for i in range(len(form.getlist("cpc[]"))):
-        cantidad = float(form.getlist("cantidad[]")[i])
-        precio = float(form.getlist("precio_unitario[]")[i])
-        total = cantidad * precio
+    for i in range(len(cpcs)):
+        cantidad = _to_float(cantidades[i])
+        precio = _to_float(precios[i])
+        total = round(cantidad * precio, 2)
         productos.append({
-            "cpc": form.getlist("cpc[]")[i],
-            "descripcion": form.getlist("descripcion[]")[i],
+            "cpc": cpcs[i],
+            "descripcion": descripciones[i],
             "cantidad": cantidad,
             "precio_unitario": precio,
             "total": total
         })
 
-    subtotal = sum(p["total"] for p in productos)
-    iva = float(form.get("iva") or 0)
-    total_general = subtotal + iva
+    subtotal = round(sum(p["total"] for p in productos), 2)
+    valor_i = round(subtotal * iva_porcentaje / 100.0, 2)  # monto del IVA
+    total_general = round(subtotal + valor_i, 2)
 
+    # -------------------------
+    # Datos para plantilla
+    # -------------------------
     data = {
         "numero_proforma": form.get("numero_proforma"),
         "fecha_emision": datetime.now().strftime("%d/%m/%Y"),
@@ -118,37 +136,36 @@ async def generar_pdf(request: Request):
         "codigo_necesidad": form.get("codigo_necesidad"),
         "objeto_compra": form.get("objeto_compra"),
         "productos": productos,
+
+        # Claves usadas por la plantilla DOCX
         "subtotal": subtotal,
-        "valor_iva": form.get("valor_iva") or 0,  # Valor IVA ingresado por el usuario
-        "iva": iva,
+        "valor_i": valor_i,                 # monto de IVA (celda derecha)
+        "iva_porcentaje": iva_porcentaje,   # porcentaje de IVA (para "IVA {{iva_porcentaje}}%")
         "total": total_general,
+
         "forma_pago": form.get("forma_pago"),
         "plazo_ejecucion": form.get("plazo_ejecucion"),
         "garantia_tecnica": form.get("garantia_tecnica"),
         "lugar_entrega": form.get("lugar_entrega"),
         "vigencia_proforma": form.get("vigencia_proforma"),
         "anexos": form.get("anexos"),
-        "letras": numero_a_letras(subtotal),
+        "letras": numero_a_letras(subtotal),    # si quieres, cámbialo a total_general
         "otros_parametros": form.get("otros_parametros"),
         "validez_proforma": form.get("validez_proforma"),
         "plazo_entrega": form.get("plazo_entrega"),
         "garantia": form.get("garantia"),
-        "tipo_formulario": tipo_formulario  # Recibimos el tipo de formulario
+        "tipo_formulario": tipo_formulario
     }
 
-    # Selección de plantilla basada en el formulario
-    if tipo_formulario == "andy":
-        plantilla_path = "proforma_template_andy.docx"  # Plantilla para Andy
-    else:
-        plantilla_path = "proforma_template.docx"  # Plantilla para Ecualimpio
-
+    # Selección de plantilla
+    plantilla_path = "proforma_template_andy.docx" if tipo_formulario == "andy" else "proforma_template.docx"
     logging.debug(f"Plantilla seleccionada: {plantilla_path}")
 
     try:
-        # Llamamos a la función que maneja el llenado de la plantilla (pdf_generator.py)
+        # Generar DOCX a partir de la plantilla
         docx_path = generar_proforma_docx(data, plantilla_path)
 
-        # Convertir el archivo a PDF
+        # Convertir a PDF con tu servicio
         with open(docx_path, "rb") as f:
             files = {
                 "file": (
@@ -172,7 +189,20 @@ async def generar_pdf(request: Request):
         logging.error("Error en /generar-pdf", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-# Funciones utilitarias de scraping
+
+# -------------------------
+# Utilidades
+# -------------------------
+def _to_float(value: str) -> float:
+    """Convierte string a float aceptando coma o punto decimal y valores vacíos."""
+    if value is None:
+        return 0.0
+    s = str(value).strip().replace(" ", "")
+    if s == "":
+        return 0.0
+    return float(s.replace(",", "."))
+
+# --------- Scraping helpers ----------
 def buscar_dato_por_strong(soup, etiqueta):
     try:
         elementos = soup.find_all("strong")
@@ -180,7 +210,7 @@ def buscar_dato_por_strong(soup, etiqueta):
             if etiqueta in el.get_text(strip=True):
                 text_nodes = []
                 for sibling in el.next_siblings:
-                    if sibling.name == "strong":
+                    if getattr(sibling, "name", None) == "strong":
                         break
                     if isinstance(sibling, str):
                         text_nodes.append(sibling.strip())
@@ -211,7 +241,7 @@ def buscar_forma_pago(soup):
         if seccion:
             tabla = seccion.find_next("table")
             return tabla.get_text(strip=True) if tabla else ""
-    except:
+    except Exception:
         return ""
     return ""
 
@@ -225,7 +255,7 @@ def buscar_direccion(soup):
                 textos = [s.strip() for s in p.stripped_strings]
             direccion_tag = contenedor.find("strong", string=lambda s: "Dirección" in s)
             direccion = direccion_tag.next_sibling.strip() if direccion_tag and direccion_tag.next_sibling else ""
-            return ', '.join(textos) + ". " + direccion if textos else direccion
+            return (', '.join(textos) + ". " + direccion) if textos else direccion
     except Exception as e:
         logging.warning(f"Error al extraer dirección: {e}")
     return ""
@@ -234,14 +264,15 @@ def extraer_productos(soup):
     productos = []
     for tabla in soup.find_all("table"):
         headers = [th.get_text(strip=True).lower() for th in tabla.find_all("th")]
-        if "cpc" in ' '.join(headers) and "descripción del producto" in ' '.join(headers):
+        joined = ' '.join(headers)
+        if "cpc" in joined and ("descripción del producto" in joined or "descripcion del producto" in joined):
             for fila in tabla.find_all("tr")[1:]:
                 celdas = fila.find_all("td")
                 if len(celdas) >= 6:
                     productos.append({
-                        "cpc": celdas[1].text.strip(),
-                        "descripcion": celdas[2].text.strip(),
-                        "cantidad": celdas[5].text.strip(),
-                        "precio_unitario": "0"
+                        "cpc": celdas[1].get_text(strip=True),
+                        "descripcion": celdas[2].get_text(strip=True),
+                        "cantidad": _to_float(celdas[5].get_text(strip=True)),
+                        "precio_unitario": 0.0
                     })
     return productos
