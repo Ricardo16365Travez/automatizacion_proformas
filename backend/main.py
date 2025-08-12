@@ -16,3 +16,8 @@ from pydantic import BaseModel
 
 class URLRequest(BaseModel):
     url: str
+class Producto(BaseModel):
+    cpc: str
+    descripcion: str
+    cantidad: float
+    precio_unitario: float
