@@ -40,6 +40,7 @@ class ProformaData(BaseModel):
     codigo_necesidad: str
     objeto_compra: str
     productos: List[Producto]
+    valor_iva: float
     iva: float
     forma_pago: str
     plazo_ejecucion: str
@@ -118,6 +119,7 @@ async def generar_pdf(request: Request):
         "objeto_compra": form.get("objeto_compra"),
         "productos": productos,
         "subtotal": subtotal,
+        "valor_iva": form.get("valor_iva") or 0,  # Valor IVA ingresado por el usuario
         "iva": iva,
         "total": total_general,
         "forma_pago": form.get("forma_pago"),

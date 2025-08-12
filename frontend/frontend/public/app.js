@@ -122,7 +122,7 @@ function calcularTotal() {
   const totalFinal = subtotal + ivaValor;
 
   document.getElementById('subtotal').textContent = `$${formatNumber(subtotal)}`;
-  document.getElementById('valor-iva').textContent = formatNumber(ivaValor);
+  document.getElementById('valor_iva').textContent = formatNumber(ivaValor);
   document.getElementById('total').textContent = formatNumber(totalFinal);
 }
 
